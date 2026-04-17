@@ -120,7 +120,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgristoretasktoken
       # FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -135,7 +135,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgrisendapprovalrequest
       # FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -153,7 +153,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgrimetricspublisher
       # FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -175,7 +175,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionLambdaingestweather
       # FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -189,7 +189,7 @@ Resources:
           WEATHER_API_URL: "https://archive-api.open-meteo.com/v1/archive"
           PROJECT_NAME: "agri-price"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2" 
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2" 
 
   LambdaFunctionAgristartgluetransform:
     Type: "AWS::Lambda::Function"
@@ -197,7 +197,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgristartgluetransform
       # FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -212,7 +212,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgriapprovaldecision
       # FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -227,7 +227,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgricuratepredictions
       # FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -240,7 +240,7 @@ Resources:
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           BUCKET: "agri-price-dev-raw"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
 
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
@@ -248,7 +248,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionLambdaingestprices
       # FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 300
@@ -264,7 +264,7 @@ Resources:
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
 
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
@@ -272,7 +272,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgristartretraining
       # FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -289,7 +289,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionAgridailyinference
       # FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.14"
+      Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
