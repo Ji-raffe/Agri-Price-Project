@@ -379,7 +379,7 @@ Resources:
         - MaxAge: 3000
           AllowedMethods: ["GET", "HEAD"]
           AllowedOrigins: 
-            - !Sub "http://${S3BucketAgripricedevraw}.s3-website-${AWS::Region}.amazonaws.com"
+            - !Sub "http://agri-price-dev-raw-project.s3-website-${AWS::Region}.amazonaws.com"
           AllowedHeaders: ["*"]
 
   S3BucketPolicyAgripricedevraw:
