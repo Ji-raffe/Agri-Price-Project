@@ -113,13 +113,14 @@ Resources:
       FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::667938260982:role/LabRole"
+      Role: "arn:aws:iam::667938260982:role/LabRole" 
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/agri-store-task-token
+      CodeUri: ../src/backend/agri-store-task-token
       Environment:
         Variables:
           TABLE_NAME: "agri-retrain-approvals"
+          
 
   LambdaFunctionAgrisendapprovalrequest:
     Type: "AWS::Lambda::Function"
@@ -130,7 +131,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/send_approval_request
+      CodeUri: ../src/backend/send_approval_request
       Environment:
         Variables:
           TOPIC_ARN: "arn:aws:sns:us-east-1:667938260982:agri-retrain-approval-topic"
@@ -146,7 +147,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-metrics-publisher
+      CodeUri: ../src/backend/agri-metrics-publisher
       Environment:
         Variables:
           ATHENA_TIMEOUT_SECONDS: "120"
@@ -166,7 +167,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/ingest_weather
+      CodeUri: ../src/backend/ingest_weather
       Environment:
         Variables:
           RAW_BUCKET: "agri-price-dev-raw-project"
@@ -186,7 +187,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-start-glue-transform
+      CodeUri: ../src/backend/agri-start-glue-transform
       Environment:
         Variables:
           GLUE_JOB_NAME: "agri-price-dev-phase-b"
@@ -200,7 +201,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/agri-approval-decision
+      CodeUri: ../src/backend/agri-approval-decision
       Environment:
         Variables:
           TABLE_NAME: "agri-retrain-approvals"
@@ -214,7 +215,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-curate-predictions
+      CodeUri: ../src/backend/agri-curate-predictions
       Environment:
         Variables:
           RAW_BASE: "predictions/raw/"
@@ -234,7 +235,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 300
-      Code: ../src/backend/ingest_prices
+      CodeUri: ../src/backend/ingest_prices
       Environment:
         Variables:
           PRICE_API_URL: "https://dataapi.moc.go.th/gis-product-prices"
@@ -257,7 +258,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-start-retraining
+      CodeUri: ../src/backend/agri-start-retraining
       Environment:
         Variables:
           FEATURES_S3_URI: "s3://agri-price-dev-raw-project/processed/features/"
@@ -273,7 +274,7 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-daily-inference
+      CodeUri: ../src/backend/agri-daily-inference
       Environment:
         Variables:
           SAGEMAKER_EXEC_ROLE_ARN: "arn:aws:iam::667938260982:role/LabRole"
