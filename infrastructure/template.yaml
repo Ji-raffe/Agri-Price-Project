@@ -135,7 +135,7 @@ Resources:
       Environment:
         Variables:
           TOPIC_ARN: !Ref SNSTopicAgriretrainapprovaltopic
-          APPROVAL_BASE_URL: "https://9me333oa9j.execute-api.us-east-1.amazonaws.com/prod/decision"
+          APPROVAL_BASE_URL: !Sub "https://${AgriApprovalHttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod/decision"
           TABLE_NAME: "agri-retrain-approvals"
 
   LambdaFunctionAgrimetricspublisher:
@@ -175,8 +175,8 @@ Resources:
           WEATHER_API_TIMEOUT: "30"
           WEATHER_API_URL: "https://archive-api.open-meteo.com/v1/archive"
           PROJECT_NAME: "agri-price"
-      # Layers:
-      # - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
+      Layers:
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionAgristartgluetransform:
     Type: "AWS::Lambda::Function"
@@ -223,8 +223,8 @@ Resources:
           CURATED_BASE: "predictions/curated/"
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           BUCKET: "agri-price-dev-raw-project"
-      # Layers:
-      # - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
+      Layers:
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
@@ -246,8 +246,8 @@ Resources:
           ENV_NAME: "dev"
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
-      # Layers:
-      # - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
+      Layers:
+      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
@@ -325,6 +325,37 @@ Resources:
         Value: "agri-price-multi-output"
 
   # ==========================================
+  # API Gateway (HTTP API)
+  # ==========================================
+  AgriApprovalHttpApi:
+    Type: "AWS::ApiGatewayV2::Api"
+    Properties:
+      Name: "agri-approval-api"
+      ProtocolType: "HTTP"
+
+  AgriApprovalApiIntegration:
+    Type: "AWS::ApiGatewayV2::Integration"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      IntegrationType: "AWS_PROXY"
+      IntegrationUri: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+      PayloadFormatVersion: "2.0"
+
+  AgriApprovalApiRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      RouteKey: "ANY /decision" # รองรับทุก Method หากเจาะจงสามารถเปลี่ยนเป็น "POST /decision" หรือ "GET /decision" ได้
+      Target: !Join [ "/", [ "integrations", !Ref AgriApprovalApiIntegration ] ]
+
+  AgriApprovalApiStage:
+    Type: "AWS::ApiGatewayV2::Stage"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      StageName: "prod"
+      AutoDeploy: true
+
+  # ==========================================
   # API Gateway, S3 & Athena
   # ==========================================
   S3BucketAgripricedevraw:
@@ -393,6 +424,7 @@ Resources:
       FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
       Action: "lambda:InvokeFunction"
       Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
 
   LambdaPermissionFunctionlambdaingestprices:
     Type: "AWS::Lambda::Permission"
