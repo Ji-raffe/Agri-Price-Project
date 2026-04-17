@@ -65,4 +65,4 @@ jobs:
       - name: Run SageMaker Setup Script
         run: |
           pip install sagemaker boto3
-          python ./src/sagemaker/training_pipeline.py
+          python ./src/sagemaker_code/training_pipeline.py
