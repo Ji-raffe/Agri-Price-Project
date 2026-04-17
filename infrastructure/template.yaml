@@ -408,7 +408,7 @@ Resources:
   AthenaWorkGroupPrimary:
     Type: "AWS::Athena::WorkGroup"
     Properties:
-      Name: "primary"
+      Name: "agri-primary-workgroup"
       State: "ENABLED"
       WorkGroupConfiguration:
         PublishCloudWatchMetricsEnabled: true
