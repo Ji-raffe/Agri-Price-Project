@@ -120,7 +120,7 @@ Resources:
     Properties:
       FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -136,7 +136,7 @@ Resources:
     Properties:
       FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -154,7 +154,7 @@ Resources:
     Properties:
       FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -176,7 +176,7 @@ Resources:
     Properties:
       FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -191,14 +191,14 @@ Resources:
           WEATHER_API_URL: "https://archive-api.open-meteo.com/v1/archive"
           PROJECT_NAME: "agri-price"
       Layers:
-        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionAgristartgluetransform:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -214,7 +214,7 @@ Resources:
     Properties:
       FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -230,7 +230,7 @@ Resources:
     Properties:
       FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -245,14 +245,14 @@ Resources:
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           BUCKET: "agri-price-dev-raw"
       Layers:
-        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-4:2"
 
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 300
@@ -270,14 +270,14 @@ Resources:
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
       Layers:
-        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-4:2"
 
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -295,7 +295,7 @@ Resources:
     Properties:
       FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.12"
+      Runtime: "python4"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
