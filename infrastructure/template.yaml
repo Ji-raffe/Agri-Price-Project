@@ -1,11 +1,10 @@
----
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Agri-Price Prediction ML Pipeline"
 
 Resources:
   # ==========================================
   # EventBridge Rules (Schedules)
-  # ========================================== 
+  # ==========================================
   EventsRuleRuleagridailycuraterule:
     Type: "AWS::Events::Rule"
     Properties:
@@ -14,10 +13,9 @@ Resources:
       ScheduleExpression: "cron(40 14 * * ? *)"
       State: "ENABLED"
       Targets:
-      - Id: "agri-curate-predictions-target"
-        Arn: !GetAtt LambdaFunctionAgricuratepredictions.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-curate-predictions"
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "agri-curate-predictions-target"
+          Arn: !GetAtt LambdaFunctionAgricuratepredictions.Arn
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailymonitorrule:
     Type: "AWS::Events::Rule"
@@ -27,10 +25,9 @@ Resources:
       ScheduleExpression: "cron(0 15 * * ? *)"
       State: "ENABLED"
       Targets:
-      - Id: "agri-metrics-publisher-target"
-        Arn: !GetAtt LambdaFunctionAgrimetricspublisher.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-metrics-publisher"
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "agri-metrics-publisher-target"
+          Arn: !GetAtt LambdaFunctionAgrimetricspublisher.Arn
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailyweatheringest:
     Type: "AWS::Events::Rule"
@@ -40,12 +37,11 @@ Resources:
       ScheduleExpression: "cron(10 13 * * ? *)"
       State: "ENABLED"
       Targets:
-      - Id: "lambda-ingest-weather-target"
-        Arn: !GetAtt LambdaFunctionLambdaingestweather.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_weather"
-        RetryPolicy:
-          MaximumRetryAttempts: 2
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "lambda-ingest-weather-target"
+          Arn: !GetAtt LambdaFunctionLambdaingestweather.Arn
+          RetryPolicy:
+            MaximumRetryAttempts: 2
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailypricesingest:
     Type: "AWS::Events::Rule"
@@ -55,12 +51,11 @@ Resources:
       ScheduleExpression: "cron(0 13 * * ? *)"
       State: "ENABLED"
       Targets:
-      - Id: "lambda-ingest-prices-target"
-        Arn: !GetAtt LambdaFunctionLambdaingestprices.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_prices"
-        RetryPolicy:
-          MaximumRetryAttempts: 2
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "lambda-ingest-prices-target"
+          Arn: !GetAtt LambdaFunctionLambdaingestprices.Arn
+          RetryPolicy:
+            MaximumRetryAttempts: 2
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailyinferencerule:
     Type: "AWS::Events::Rule"
@@ -70,10 +65,9 @@ Resources:
       ScheduleExpression: "cron(20 14 * * ? *)"
       State: "ENABLED"
       Targets:
-      - Id: "agri-daily-inference-target"
-        Arn: !GetAtt LambdaFunctionAgridailyinference.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-daily-inference"
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "agri-daily-inference-target"
+          Arn: !GetAtt LambdaFunctionAgridailyinference.Arn
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagriretrainondriftrule:
     Type: "AWS::Events::Rule"
@@ -82,21 +76,20 @@ Resources:
       EventBusName: "default"
       EventPattern:
         detail-type:
-        - "CloudWatch Alarm State Change"
+          - "CloudWatch Alarm State Change"
         source:
-        - "aws.cloudwatch"
+          - "aws.cloudwatch"
         detail:
           alarmName:
-          - "agri-overall-mape-alarm"
+            - "agri-overall-mape-alarm"
           state:
             value:
-            - "ALARM"
+              - "ALARM"
       State: "ENABLED"
       Targets:
-      - Id: "agri-retrain-workflow-target"
-        Arn: !GetAtt StepFunctionsStateMachineStateMachineagriretrainapprovalworkflow.Arn
-        # Arn: "arn:aws:states:us-east-1:667938260982:stateMachine:agri-retrain-approval-workflow"
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "agri-retrain-workflow-target"
+          Arn: !GetAtt StepFunctionsStateMachineStateMachineagriretrainapprovalworkflow.Arn
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailygluejob:
     Type: "AWS::Events::Rule"
@@ -106,10 +99,9 @@ Resources:
       ScheduleExpression: "cron(30 0 * * ? *)"
       State: "DISABLED"
       Targets:
-      - Id: "agri-start-glue-transform-target"
-        Arn: !GetAtt LambdaFunctionAgristartgluetransform.Arn
-        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-start-glue-transform"
-        RoleArn: "arn:aws:iam::667938260982:role/LabRole"
+        - Id: "agri-start-glue-transform-target"
+          Arn: !GetAtt LambdaFunctionAgristartgluetransform.Arn
+          RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   # ==========================================
   # Lambda Functions
@@ -117,8 +109,7 @@ Resources:
   LambdaFunctionAgristoretasktoken:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgristoretasktoken
-      # FunctionName: "agri-store-task-token"
+      FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -132,8 +123,7 @@ Resources:
   LambdaFunctionAgrisendapprovalrequest:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgrisendapprovalrequest
-      # FunctionName: "agri-send-approval-request"
+      FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -145,20 +135,17 @@ Resources:
           TOPIC_ARN: "arn:aws:sns:us-east-1:667938260982:agri-retrain-approval-topic"
           APPROVAL_BASE_URL: "https://9me333oa9j.execute-api.us-east-1.amazonaws.com/prod/decision"
           TABLE_NAME: "agri-retrain-approvals"
-          
 
   LambdaFunctionAgrimetricspublisher:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgrimetricspublisher
-      # FunctionName: "agri-metrics-publisher"
+      FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-metrics-publisher
-
       Environment:
         Variables:
           ATHENA_TIMEOUT_SECONDS: "120"
@@ -172,15 +159,13 @@ Resources:
   LambdaFunctionLambdaingestweather:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionLambdaingestweather
-      # FunctionName: "lambda_ingest_weather"
+      FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/ingest_weather
-        
       Environment:
         Variables:
           RAW_BUCKET: "agri-price-dev-raw"
@@ -189,13 +174,12 @@ Resources:
           WEATHER_API_URL: "https://archive-api.open-meteo.com/v1/archive"
           PROJECT_NAME: "agri-price"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2" 
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
 
   LambdaFunctionAgristartgluetransform:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgristartgluetransform
-      # FunctionName: "agri-start-glue-transform"
+      FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -209,8 +193,7 @@ Resources:
   LambdaFunctionAgriapprovaldecision:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgriapprovaldecision
-      # FunctionName: "agri-approval-decision"
+      FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -224,8 +207,7 @@ Resources:
   LambdaFunctionAgricuratepredictions:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgricuratepredictions
-      # FunctionName: "agri-curate-predictions"
+      FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -240,13 +222,12 @@ Resources:
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           BUCKET: "agri-price-dev-raw"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
 
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionLambdaingestprices
-      # FunctionName: "lambda_ingest_prices"
+      FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -264,13 +245,12 @@ Resources:
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
       Layers:
-      - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:2"
 
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgristartretraining
-      # FunctionName: "agri-start-retraining"
+      FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -286,8 +266,7 @@ Resources:
   LambdaFunctionAgridailyinference:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionAgridailyinference
-      # FunctionName: "agri-daily-inference"
+      FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -322,8 +301,8 @@ Resources:
     Properties:
       TopicName: "agri-retrain-approval-topic"
       Subscription:
-      - Endpoint: "st125843@ait.asia"
-        Protocol: "email"
+        - Endpoint: "st125843@ait.asia"
+          Protocol: "email"
 
   CloudWatchAlarmAgrioverallmapealarm:
     Type: "AWS::CloudWatch::Alarm"
@@ -340,65 +319,52 @@ Resources:
       DatapointsToAlarm: 1
       TreatMissingData: "ignore"
       Dimensions:
-      - Name: "ModelPackageGroup"
-        Value: "agri-price-multi-output"
+        - Name: "ModelPackageGroup"
+          Value: "agri-price-multi-output"
 
   # ==========================================
-  # API Gateway, S3 & Athena
+  # S3 & Athena
   # ==========================================
-  # ApiGatewayV2Api:
-  #   Type: "AWS::ApiGatewayV2::Api"
-  #   Properties:
-  #     Name: "agri-retrain-approval-api"
-  #     ProtocolType: "HTTP"
-
-  # ApiGatewayV2Deployment:
-  #   Type: "AWS::ApiGatewayV2::Deployment"
-  #   Properties:
-  #     ApiId: "9me333oa9j" 
-  #     Description: "Automatic deployment triggered by changes to the Api configuration"
-
   S3BucketAgripricedevraw:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: "agri-price-dev-raw"
       OwnershipControls:
         Rules:
-        - ObjectOwnership: "BucketOwnerEnforced"
+          - ObjectOwnership: "BucketOwnerEnforced"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: true
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: "AES256"
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: "AES256"
       VersioningConfiguration:
         Status: "Enabled"
       WebsiteConfiguration:
         IndexDocument: "index.html"
       CorsConfiguration:
         CorsRules:
-        - MaxAge: 3000
-          AllowedMethods: ["GET", "HEAD"]
-          AllowedOrigins: ["http://agri-price-dev-raw.s3-website-us-east-1.amazonaws.com"]
-          AllowedHeaders: ["*"]
+          - MaxAge: 3000
+            AllowedMethods: ["GET", "HEAD"]
+            AllowedOrigins: ["http://agri-price-dev-raw.s3-website-us-east-1.amazonaws.com"]
+            AllowedHeaders: ["*"]
 
   S3BucketPolicyAgripricedevraw:
     Type: "AWS::S3::BucketPolicy"
-    # DependsOn: S3BucketAgripricedevraw
     Properties:
-      Bucket: "agri-price-dev-raw" # ควรอ้างอิงด้วย !Ref S3BucketAgripricedevraw 
+      Bucket: !Ref S3BucketAgripricedevraw
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Sid: "PublicReadWebsiteFiles"
-          Effect: "Allow"
-          Principal: "*"
-          Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw/site/*"
-        - Sid: "PublicReadLatestPredictions"
-          Effect: "Allow"
-          Principal: "*"
-          Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw/predictions/curated/latest/*"
+          - Sid: "PublicReadWebsiteFiles"
+            Effect: "Allow"
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: "arn:aws:s3:::agri-price-dev-raw/site/*"
+          - Sid: "PublicReadLatestPredictions"
+            Effect: "Allow"
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: "arn:aws:s3:::agri-price-dev-raw/predictions/curated/latest/*"
 
   AthenaWorkGroupPrimary:
     Type: "AWS::Athena::WorkGroup"
@@ -410,25 +376,59 @@ Resources:
         EnforceWorkGroupConfiguration: false
 
   # ==========================================
-  # Permissions (EventBridge to Lambda)
+  # Permissions (EventBridge/API Gateway to Lambda)
   # ==========================================
   LambdaPermissionFunctionlambdaingestweather:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_weather"
+      FunctionName: !GetAtt LambdaFunctionLambdaingestweather.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-
-  LambdaPermissionFunctionagriapprovaldecision:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:667938260982:function:agri-approval-decision"
-      Action: "lambda:InvokeFunction"
-      Principal: "apigateway.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailyweatheringest.Arn
 
   LambdaPermissionFunctionlambdaingestprices:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_prices"
+      FunctionName: !GetAtt LambdaFunctionLambdaingestprices.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailypricesingest.Arn
+
+  LambdaPermissionFunctionagricuratepredictions:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgricuratepredictions.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailycuraterule.Arn
+
+  LambdaPermissionFunctionagrimetricspublisher:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgrimetricspublisher.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailymonitorrule.Arn
+
+  LambdaPermissionFunctionagridailyinference:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgridailyinference.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailyinferencerule.Arn
+
+  LambdaPermissionFunctionagristartgluetransform:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgristartgluetransform.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt EventsRuleRuleagridailygluejob.Arn
+
+  LambdaPermissionFunctionagriapprovaldecision:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "apigateway.amazonaws.com"
