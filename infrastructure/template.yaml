@@ -15,7 +15,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "agri-curate-predictions-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-curate-predictions"
+        Arn: !GetAtt LambdaFunctionAgricuratepredictions.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-curate-predictions"
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailymonitorrule:
@@ -27,7 +28,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "agri-metrics-publisher-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-metrics-publisher"
+        Arn: !GetAtt LambdaFunctionAgrimetricspublisher.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-metrics-publisher"
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailyweatheringest:
@@ -39,7 +41,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "lambda-ingest-weather-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_weather"
+        Arn: !GetAtt LambdaFunctionLambdaingestweather.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_weather"
         RetryPolicy:
           MaximumRetryAttempts: 2
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
@@ -53,7 +56,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "lambda-ingest-prices-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_prices"
+        Arn: !GetAtt LambdaFunctionLambdaingestprices.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:lambda_ingest_prices"
         RetryPolicy:
           MaximumRetryAttempts: 2
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
@@ -67,7 +71,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "agri-daily-inference-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-daily-inference"
+        Arn: !GetAtt LambdaFunctionAgridailyinference.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-daily-inference"
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagriretrainondriftrule:
@@ -89,7 +94,8 @@ Resources:
       State: "ENABLED"
       Targets:
       - Id: "agri-retrain-workflow-target"
-        Arn: "arn:aws:states:us-east-1:667938260982:stateMachine:agri-retrain-approval-workflow"
+        Arn: !GetAtt StepFunctionsStateMachineStateMachineagriretrainapprovalworkflow.Arn
+        # Arn: "arn:aws:states:us-east-1:667938260982:stateMachine:agri-retrain-approval-workflow"
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   EventsRuleRuleagridailygluejob:
@@ -101,7 +107,8 @@ Resources:
       State: "DISABLED"
       Targets:
       - Id: "agri-start-glue-transform-target"
-        Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-start-glue-transform"
+        Arn: !GetAtt LambdaFunctionAgristartgluetransform.Arn
+        # Arn: "arn:aws:lambda:us-east-1:667938260982:function:agri-start-glue-transform"
         RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
   # ==========================================
@@ -110,7 +117,8 @@ Resources:
   LambdaFunctionAgristoretasktoken:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-store-task-token"
+      FunctionName: !Ref LambdaFunctionAgristoretasktoken
+      # FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -124,7 +132,8 @@ Resources:
   LambdaFunctionAgrisendapprovalrequest:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-send-approval-request"
+      FunctionName: !Ref LambdaFunctionAgrisendapprovalrequest
+      # FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -141,7 +150,8 @@ Resources:
   LambdaFunctionAgrimetricspublisher:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-metrics-publisher"
+      FunctionName: !Ref LambdaFunctionAgrimetricspublisher
+      # FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -162,7 +172,8 @@ Resources:
   LambdaFunctionLambdaingestweather:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "lambda_ingest_weather"
+      FunctionName: !Ref LambdaFunctionLambdaingestweather
+      # FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -183,7 +194,8 @@ Resources:
   LambdaFunctionAgristartgluetransform:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-start-glue-transform"
+      FunctionName: !Ref LambdaFunctionAgristartgluetransform
+      # FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -197,7 +209,8 @@ Resources:
   LambdaFunctionAgriapprovaldecision:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-approval-decision"
+      FunctionName: !Ref LambdaFunctionAgriapprovaldecision
+      # FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -211,7 +224,8 @@ Resources:
   LambdaFunctionAgricuratepredictions:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-curate-predictions"
+      FunctionName: !Ref LambdaFunctionAgricuratepredictions
+      # FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -231,7 +245,8 @@ Resources:
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "lambda_ingest_prices"
+      FunctionName: !Ref LambdaFunctionLambdaingestprices
+      # FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -254,7 +269,8 @@ Resources:
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-start-retraining"
+      FunctionName: !Ref LambdaFunctionAgristartretraining
+      # FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
@@ -270,7 +286,8 @@ Resources:
   LambdaFunctionAgridailyinference:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: "agri-daily-inference"
+      FunctionName: !Ref LambdaFunctionAgridailyinference
+      # FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.12"
       Role: "arn:aws:iam::667938260982:role/LabRole"
