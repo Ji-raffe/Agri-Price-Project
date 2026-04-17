@@ -11,9 +11,6 @@ Parameters:
     Description: S3 key prefix for Lambda zip files
 
 Resources:
-  # ==========================================
-  # EventBridge Rules (Schedules)
-  # ==========================================
   EventsRuleRuleagridailycuraterule:
     Type: "AWS::Events::Rule"
     Properties:
@@ -112,9 +109,6 @@ Resources:
           Arn: !GetAtt LambdaFunctionAgristartgluetransform.Arn
           RoleArn: "arn:aws:iam::667938260982:role/LabRole"
 
-  # ==========================================
-  # Lambda Functions
-  # ==========================================
   LambdaFunctionAgristoretasktoken:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -136,7 +130,7 @@ Resources:
     Properties:
       FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -154,7 +148,7 @@ Resources:
     Properties:
       FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -176,7 +170,7 @@ Resources:
     Properties:
       FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -198,7 +192,7 @@ Resources:
     Properties:
       FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -214,7 +208,7 @@ Resources:
     Properties:
       FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
@@ -230,7 +224,7 @@ Resources:
     Properties:
       FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -245,14 +239,14 @@ Resources:
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           BUCKET: "agri-price-dev-raw"
       Layers:
-        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-4:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionLambdaingestprices:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 300
@@ -270,14 +264,14 @@ Resources:
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
       Layers:
-        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-4:2"
+        - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
   LambdaFunctionAgristartretraining:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -295,7 +289,7 @@ Resources:
     Properties:
       FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
-      Runtime: "python4"
+      Runtime: "python3.14"
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
@@ -311,9 +305,6 @@ Resources:
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
           INPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw/inference/input/run_date={run_date}/payload/"
 
-  # ==========================================
-  # Step Functions Workflow
-  # ==========================================
   StepFunctionsStateMachineStateMachineagriretrainapprovalworkflow:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
@@ -322,9 +313,6 @@ Resources:
       StateMachineType: "STANDARD"
       DefinitionString: "{\"Comment\":\"Human-in-the-loop approval before retraining\",\"StartAt\":\"AddExecutionArn\",\"States\":{\"AddExecutionArn\":{\"Type\":\"Pass\",\"Parameters\":{\"execution_arn.$\":\"$$.Execution.Id\"},\"ResultPath\":\"$.meta\",\"Next\":\"SendApprovalRequest\"},\"SendApprovalRequest\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-send-approval-request\",\"Payload\":{\"execution_arn.$\":\"$.meta.execution_arn\"}},\"ResultPath\":\"$.approval\",\"Next\":\"StoreTaskToken\"},\"StoreTaskToken\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke.waitForTaskToken\",\"Parameters\":{\"FunctionName\":\"agri-store-task-token\",\"Payload\":{\"token.$\":\"$.approval.Payload.token\",\"task_token.$\":\"$$.Task.Token\"}},\"TimeoutSeconds\":86400,\"ResultPath\":\"$.decision\",\"Next\":\"ApprovedChoice\"},\"ApprovedChoice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.decision.approved\",\"BooleanEquals\":true,\"Next\":\"StartRetraining\"}],\"Default\":\"Rejected\"},\"StartRetraining\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-start-retraining\",\"Payload\":{}},\"End\":true},\"Rejected\":{\"Type\":\"Fail\",\"Error\":\"ApprovalRejected\",\"Cause\":\"Retraining rejected by admin\"}}}"
 
-  # ==========================================
-  # Notifications & Alarms (SNS / CloudWatch)
-  # ==========================================
   SNSTopicAgriretrainapprovaltopic:
     Type: "AWS::SNS::Topic"
     Properties:
@@ -351,9 +339,6 @@ Resources:
         - Name: "ModelPackageGroup"
           Value: "agri-price-multi-output"
 
-  # ==========================================
-  # S3 & Athena
-  # ==========================================
   S3BucketAgripricedevraw:
     Type: "AWS::S3::Bucket"
     Properties:
@@ -404,9 +389,6 @@ Resources:
         PublishCloudWatchMetricsEnabled: true
         EnforceWorkGroupConfiguration: false
 
-  # ==========================================
-  # Permissions (EventBridge/API Gateway to Lambda)
-  # ==========================================
   LambdaPermissionFunctionlambdaingestweather:
     Type: "AWS::Lambda::Permission"
     Properties:
