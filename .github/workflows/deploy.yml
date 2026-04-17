@@ -3,25 +3,24 @@ name: Deploy Agri-Price Pipeline
 on:
   push:
     branches:
-      - main              # Automatically runs when code is pushed to the main branch
-  workflow_dispatch:      # Allows manual triggering from the GitHub Actions UI
+      - main
+  workflow_dispatch:
 
 env:
-  AWS_REGION: "us-east-1"                 # AWS region in use
-  STACK_NAME: "agri-price-pipeline-stack" # Name of the CloudFormation stack
-  S3_BUCKET: "agri-price-dev-raw"         # S3 bucket for artifacts and static website
-  ARTIFACT_BUCKET: "agri-artifacts"
+  AWS_REGION: "us-east-1"
+  STACK_NAME: "agri-price-pipeline-stack"
+  S3_BUCKET: "agri-price-dev-raw-project"        
+  ARTIFACT_BUCKET: "agri-artifacts"     
+  ARTIFACT_PREFIX: "lambda-artifacts"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # 1. Checkout the latest code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Authenticate with AWS using GitHub Secrets
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -30,28 +29,55 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 3. Package the CloudFormation template and upload Lambda artifacts to S3
-      - name: Package CloudFormation Template
+      - name: Validate CloudFormation Template
         working-directory: ./infrastructure
         run: |
-          aws cloudformation package \
-            --template-file template.yaml \
-            --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
-            --output-template-file packaged-template.yaml
+          aws cloudformation validate-template --template-body file://template.yaml
 
-      # 4. Deploy the packaged template to create/update AWS resources
+      - name: Zip Lambda functions
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          # มุดเข้าไปในโฟลเดอร์ของแต่ละ Lambda เพื่อ Zip เฉพาะไฟล์ข้างใน (ไม่เอาชื่อโฟลเดอร์ src/ ติดไปด้วย)
+          (cd src/backend/agri-store-task-token && zip -r ../../../dist/agri-store-task-token.zip .)
+          (cd src/backend/send_approval_request && zip -r ../../../dist/send_approval_request.zip .)
+          (cd src/backend/agri-metrics-publisher && zip -r ../../../dist/agri-metrics-publisher.zip .)
+          (cd src/backend/ingest_weather && zip -r ../../../dist/ingest_weather.zip .)
+          (cd src/backend/agri-start-glue-transform && zip -r ../../../dist/agri-start-glue-transform.zip .)
+          (cd src/backend/agri-approval-decision && zip -r ../../../dist/agri-approval-decision.zip .)
+          (cd src/backend/agri-curate-predictions && zip -r ../../../dist/agri-curate-predictions.zip .)
+          (cd src/backend/ingest_prices && zip -r ../../../dist/ingest_prices.zip .)
+          (cd src/backend/agri-start-retraining && zip -r ../../../dist/agri-start-retraining.zip .)
+          (cd src/backend/agri-daily-inference && zip -r ../../../dist/agri-daily-inference.zip .)
+
+      - name: Upload Lambda artifacts to S3
+        run: |
+          aws s3 cp dist/ s3://${{ env.ARTIFACT_BUCKET }}/${{ env.ARTIFACT_PREFIX }}/ --recursive
+
       - name: Deploy CloudFormation Stack
         working-directory: ./infrastructure
         run: |
           aws cloudformation deploy \
-            --template-file packaged-template.yaml \
+            --template-file template.yaml \
             --stack-name ${{ env.STACK_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides \
+              ArtifactBucketName=${{ env.ARTIFACT_BUCKET }} \
+              ArtifactPrefix=${{ env.ARTIFACT_PREFIX }} \
             --no-fail-on-empty-changeset
 
-      # 5. Deploy frontend files (HTML/CSS/JS) to S3 for static website hosting
       - name: Deploy Frontend to S3 (Static Website)
         run: |
+          # ตรวจสอบว่ามีไฟล์ในโฟลเดอร์ frontend ก่อน sync
           aws s3 sync ./src/frontend s3://${{ env.S3_BUCKET }}/site/ \
             --delete \
             --exact-timestamps
+
+      - name: Show recent stack events on failure
+        if: failure()
+        run: |
+          aws cloudformation describe-stack-events \
+            --stack-name ${{ env.STACK_NAME }} \
+            --max-items 30 \
+            --query 'StackEvents[].[Timestamp,LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]' \
+            --output table
