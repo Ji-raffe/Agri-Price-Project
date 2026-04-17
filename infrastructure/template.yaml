@@ -135,7 +135,7 @@ Resources:
       Environment:
         Variables:
           TOPIC_ARN: !Ref SNSTopicAgriretrainapprovaltopic
-          APPROVAL_BASE_URL: !Sub "https://${AgriApprovalHttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod/decision"
+          APPROVAL_BASE_URL: "https://dummy-api-url.com/prod/decision" #!Sub "https://${AgriApprovalHttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod/decision"
           TABLE_NAME: "agri-retrain-approvals"
 
   LambdaFunctionAgrimetricspublisher:
@@ -277,7 +277,7 @@ Resources:
       Code: ../src/backend/agri-daily-inference
       Environment:
         Variables:
-          SAGEMAKER_EXEC_ROLE_ARN: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+          SAGEMAKER_EXEC_ROLE_ARN: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
           OUTPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw-project/predictions/raw/run_date={run_date}/"
           INSTANCE_COUNT: "1"
           INSTANCE_TYPE: "ml.m5.large"
@@ -324,40 +324,81 @@ Resources:
       - Name: "ModelPackageGroup"
         Value: "agri-price-multi-output"
 
-  # ==========================================
-  # API Gateway (HTTP API)
-  # ==========================================
-  AgriApprovalHttpApi:
-    Type: "AWS::ApiGatewayV2::Api"
-    Properties:
-      Name: "agri-approval-api"
-      ProtocolType: "HTTP"
+  # # ==========================================
+  # # API Gateway (HTTP API)
+  # # ==========================================
+  # AgriApprovalHttpApi:
+  #   Type: "AWS::ApiGatewayV2::Api"
+  #   Properties:
+  #     Name: "agri-approval-api"
+  #     ProtocolType: "HTTP"
 
-  AgriApprovalApiIntegration:
-    Type: "AWS::ApiGatewayV2::Integration"
-    Properties:
-      ApiId: !Ref AgriApprovalHttpApi
-      IntegrationType: "AWS_PROXY"
-      IntegrationUri: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
-      PayloadFormatVersion: "2.0"
+  # AgriApprovalApiIntegration:
+  #   Type: "AWS::ApiGatewayV2::Integration"
+  #   Properties:
+  #     ApiId: !Ref AgriApprovalHttpApi
+  #     IntegrationType: "AWS_PROXY"
+  #     IntegrationUri: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+  #     PayloadFormatVersion: "2.0"
 
-  AgriApprovalApiRoute:
-    Type: "AWS::ApiGatewayV2::Route"
-    Properties:
-      ApiId: !Ref AgriApprovalHttpApi
-      RouteKey: "ANY /decision" # รองรับทุก Method หากเจาะจงสามารถเปลี่ยนเป็น "POST /decision" หรือ "GET /decision" ได้
-      Target: !Join [ "/", [ "integrations", !Ref AgriApprovalApiIntegration ] ]
+  # AgriApprovalApiRoute:
+  #   Type: "AWS::ApiGatewayV2::Route"
+  #   Properties:
+  #     ApiId: !Ref AgriApprovalHttpApi
+  #     RouteKey: "ANY /decision" 
+  #     Target: !Join [ "/", [ "integrations", !Ref AgriApprovalApiIntegration ] ]
 
-  AgriApprovalApiStage:
-    Type: "AWS::ApiGatewayV2::Stage"
-    Properties:
-      ApiId: !Ref AgriApprovalHttpApi
-      StageName: "prod"
-      AutoDeploy: true
+  # AgriApprovalApiStage:
+  #   Type: "AWS::ApiGatewayV2::Stage"
+  #   Properties:
+  #     ApiId: !Ref AgriApprovalHttpApi
+  #     StageName: "prod"
+  #     AutoDeploy: true
 
   # ==========================================
   # API Gateway, S3 & Athena
   # ==========================================
+  # S3BucketAgripricedevraw:
+  #   Type: "AWS::S3::Bucket"
+  #   Properties:
+  #     BucketName: "agri-price-dev-raw-project"
+  #     OwnershipControls:
+  #       Rules:
+  #       - ObjectOwnership: "BucketOwnerEnforced"
+  #     BucketEncryption:
+  #       ServerSideEncryptionConfiguration:
+  #       - BucketKeyEnabled: true
+  #         ServerSideEncryptionByDefault:
+  #           SSEAlgorithm: "AES256"
+  #     VersioningConfiguration:
+  #       Status: "Enabled"
+  #     WebsiteConfiguration:
+  #       IndexDocument: "index.html"
+  #     CorsConfiguration:
+  #       CorsRules:
+  #       - MaxAge: 3000
+  #         AllowedMethods: ["GET", "HEAD"]
+  #         AllowedOrigins: ["http://agri-price-dev-raw-project.s3-website-us-east-1.amazonaws.com"]
+  #         AllowedHeaders: ["*"]
+
+  # S3BucketPolicyAgripricedevraw:
+  #   Type: "AWS::S3::BucketPolicy"
+  #   Properties:
+  #     Bucket: !Ref S3BucketAgripricedevraw
+  #     PolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #       - Sid: "PublicReadWebsiteFiles"
+  #         Effect: "Allow"
+  #         Principal: "*"
+  #         Action: "s3:GetObject"
+  #         Resource: "arn:aws:s3:::agri-price-dev-raw-project/site/*"
+  #       - Sid: "PublicReadLatestPredictions"
+  #         Effect: "Allow"
+  #         Principal: "*"
+  #         Action: "s3:GetObject"
+  #         Resource: "arn:aws:s3:::agri-price-dev-raw-project/predictions/curated/latest/*"
+
   S3BucketAgripricedevraw:
     Type: "AWS::S3::Bucket"
     Properties:
@@ -372,32 +413,6 @@ Resources:
             SSEAlgorithm: "AES256"
       VersioningConfiguration:
         Status: "Enabled"
-      WebsiteConfiguration:
-        IndexDocument: "index.html"
-      CorsConfiguration:
-        CorsRules:
-        - MaxAge: 3000
-          AllowedMethods: ["GET", "HEAD"]
-          AllowedOrigins: ["http://agri-price-dev-raw-project.s3-website-us-east-1.amazonaws.com"]
-          AllowedHeaders: ["*"]
-
-  S3BucketPolicyAgripricedevraw:
-    Type: "AWS::S3::BucketPolicy"
-    Properties:
-      Bucket: !Ref S3BucketAgripricedevraw
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Sid: "PublicReadWebsiteFiles"
-          Effect: "Allow"
-          Principal: "*"
-          Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw-project/site/*"
-        - Sid: "PublicReadLatestPredictions"
-          Effect: "Allow"
-          Principal: "*"
-          Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw-project/predictions/curated/latest/*"
 
   AthenaWorkGroupPrimary:
     Type: "AWS::Athena::WorkGroup"
@@ -418,13 +433,13 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
 
-  LambdaPermissionFunctionagriapprovaldecision:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
-      Action: "lambda:InvokeFunction"
-      Principal: "apigateway.amazonaws.com"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
+  # LambdaPermissionFunctionagriapprovaldecision:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+  #     Action: "lambda:InvokeFunction"
+  #     Principal: "apigateway.amazonaws.com"
+  #     SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
 
   LambdaPermissionFunctionlambdaingestprices:
     Type: "AWS::Lambda::Permission"
