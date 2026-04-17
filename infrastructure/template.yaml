@@ -298,13 +298,13 @@ Resources:
   # ==========================================
   # Notifications & Alarms (SNS / CloudWatch)
   # ==========================================
-  # SNSTopicAgriretrainapprovaltopic:
-  #   Type: "AWS::SNS::Topic"
-  #   Properties:
-  #     TopicName: "agri-retrain-approval-topic"
-  #     Subscription:
-  #     - Endpoint: "st125843@ait.asia"
-  #       Protocol: "email"
+  SNSTopicAgriretrainapprovaltopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      TopicName: "agri-retrain-approval-topic"
+      Subscription:
+      - Endpoint: "st125843@ait.asia"
+        Protocol: "email"
 
   # CloudWatchAlarmAgrioverallmapealarm:
   #   Type: "AWS::CloudWatch::Alarm"
@@ -324,36 +324,36 @@ Resources:
   #     - Name: "ModelPackageGroup"
   #       Value: "agri-price-multi-output"
 
-  # # ==========================================
-  # # API Gateway (HTTP API)
-  # # ==========================================
-  # AgriApprovalHttpApi:
-  #   Type: "AWS::ApiGatewayV2::Api"
-  #   Properties:
-  #     Name: "agri-approval-api"
-  #     ProtocolType: "HTTP"
+  # ==========================================
+  # API Gateway (HTTP API)
+  # ==========================================
+  AgriApprovalHttpApi:
+    Type: "AWS::ApiGatewayV2::Api"
+    Properties:
+      Name: "agri-approval-api"
+      ProtocolType: "HTTP"
 
-  # AgriApprovalApiIntegration:
-  #   Type: "AWS::ApiGatewayV2::Integration"
-  #   Properties:
-  #     ApiId: !Ref AgriApprovalHttpApi
-  #     IntegrationType: "AWS_PROXY"
-  #     IntegrationUri: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
-  #     PayloadFormatVersion: "2.0"
+  AgriApprovalApiIntegration:
+    Type: "AWS::ApiGatewayV2::Integration"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      IntegrationType: "AWS_PROXY"
+      IntegrationUri: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+      PayloadFormatVersion: "2.0"
 
-  # AgriApprovalApiRoute:
-  #   Type: "AWS::ApiGatewayV2::Route"
-  #   Properties:
-  #     ApiId: !Ref AgriApprovalHttpApi
-  #     RouteKey: "ANY /decision" 
-  #     Target: !Join [ "/", [ "integrations", !Ref AgriApprovalApiIntegration ] ]
+  AgriApprovalApiRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      RouteKey: "ANY /decision" 
+      Target: !Join [ "/", [ "integrations", !Ref AgriApprovalApiIntegration ] ]
 
-  # AgriApprovalApiStage:
-  #   Type: "AWS::ApiGatewayV2::Stage"
-  #   Properties:
-  #     ApiId: !Ref AgriApprovalHttpApi
-  #     StageName: "prod"
-  #     AutoDeploy: true
+  AgriApprovalApiStage:
+    Type: "AWS::ApiGatewayV2::Stage"
+    Properties:
+      ApiId: !Ref AgriApprovalHttpApi
+      StageName: "prod"
+      AutoDeploy: true
 
   # ==========================================
   # API Gateway, S3 & Athena
