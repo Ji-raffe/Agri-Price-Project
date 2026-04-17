@@ -1,0 +1,56 @@
+name: Deploy Agri-Price Pipeline
+
+on:
+  push:
+    branches:
+      - main              # Automatically runs when code is pushed to the main branch
+  workflow_dispatch:      # Allows manual triggering from the GitHub Actions UI
+
+env:
+  AWS_REGION: "us-east-1"                 # AWS region in use
+  STACK_NAME: "agri-price-pipeline-stack" # Name of the CloudFormation stack
+  S3_BUCKET: "agri-price-dev-raw"         # S3 bucket for artifacts and static website
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Checkout the latest code from the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Authenticate with AWS using GitHub Secrets
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. Package the CloudFormation template and upload Lambda artifacts to S3
+      - name: Package CloudFormation Template
+        working-directory: ./infrastructure
+        run: |
+          aws cloudformation package \
+            --template-file template.yaml \
+            --s3-bucket ${{ env.S3_BUCKET }} \
+            --s3-prefix cloudformation-artifacts \
+            --output-template-file packaged-template.yaml
+
+      # 4. Deploy the packaged template to create/update AWS resources
+      - name: Deploy CloudFormation Stack
+        working-directory: ./infrastructure
+        run: |
+          aws cloudformation deploy \
+            --template-file packaged-template.yaml \
+            --stack-name ${{ env.STACK_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --no-fail-on-empty-changeset
+
+      # 5. Deploy frontend files (HTML/CSS/JS) to S3 for static website hosting
+      - name: Deploy Frontend to S3 (Static Website)
+        run: |
+          aws s3 sync ./src/frontend s3://${{ env.S3_BUCKET }}/site/ \
+            --delete \
+            --exact-timestamps
