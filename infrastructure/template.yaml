@@ -383,7 +383,7 @@ Resources:
 
   S3BucketPolicyAgripricedevraw:
     Type: "AWS::S3::BucketPolicy"
-    DependsOn: S3BucketAgripricedevraw
+    # DependsOn: S3BucketAgripricedevraw
     Properties:
       Bucket: "agri-price-dev-raw" # ควรอ้างอิงด้วย !Ref S3BucketAgripricedevraw 
       PolicyDocument:
