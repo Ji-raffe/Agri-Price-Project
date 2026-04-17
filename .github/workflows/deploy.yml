@@ -19,6 +19,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          python-version: '3.14'
+
+      
 
       # If you always use temporary creds, keep aws-session-token.
       # If not, this conditional setup avoids failure when token is absent.
@@ -57,3 +61,8 @@ jobs:
           aws s3 sync ./src/frontend s3://${{ env.S3_BUCKET }}/site/ \
             --delete \
             --exact-timestamps
+
+      - name: Run SageMaker Setup Script
+        run: |
+          pip install sagemaker boto3
+          python ./src/sagemaker/training_pipeline.py
