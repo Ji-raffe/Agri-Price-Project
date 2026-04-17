@@ -36,8 +36,7 @@ jobs:
         run: |
           aws cloudformation package \
             --template-file template.yaml \
-            --s3-bucket ${{ env.S3_BUCKET }} \
-            --s3-prefix agri-artifacts \
+            --s3-bucket ${{ env.ARTIFACT_BUCKET }}
             --output-template-file packaged-template.yaml
 
       # 4. Deploy the packaged template to create/update AWS resources
