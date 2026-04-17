@@ -192,19 +192,19 @@ Resources:
   #       Variables:
   #         GLUE_JOB_NAME: "agri-price-dev-phase-b"
 
-  # LambdaFunctionAgriapprovaldecision:
-  #   Type: "AWS::Lambda::Function"
-  #   Properties:
-  #     FunctionName: "agri-approval-decision"
-  #     Handler: "lambda_function.lambda_handler"
-  #     Runtime: "python3.14"
-  #     Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
-  #     MemorySize: 128
-  #     Timeout: 3
-  #     Code: ../src/backend/agri-approval-decision
-  #     Environment:
-  #       Variables:
-  #         TABLE_NAME: "agri-retrain-approvals"
+  LambdaFunctionAgriapprovaldecision:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: "agri-approval-decision"
+      Handler: "lambda_function.lambda_handler"
+      Runtime: "python3.14"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
+      MemorySize: 128
+      Timeout: 3
+      Code: ../src/backend/agri-approval-decision
+      Environment:
+        Variables:
+          TABLE_NAME: "agri-retrain-approvals"
 
   # LambdaFunctionAgricuratepredictions:
   #   Type: "AWS::Lambda::Function"
@@ -419,13 +419,13 @@ Resources:
   #     Action: "lambda:InvokeFunction"
   #     Principal: "events.amazonaws.com"
 
-  # LambdaPermissionFunctionagriapprovaldecision:
-  #   Type: "AWS::Lambda::Permission"
-  #   Properties:
-  #     FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
-  #     Action: "lambda:InvokeFunction"
-  #     Principal: "apigateway.amazonaws.com"
-  #     SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
+  LambdaPermissionFunctionagriapprovaldecision:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
 
   # LambdaPermissionFunctionlambdaingestprices:
   #   Type: "AWS::Lambda::Permission"
