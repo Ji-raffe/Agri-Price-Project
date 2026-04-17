@@ -22,7 +22,7 @@ jobs:
 
       # If you always use temporary creds, keep aws-session-token.
       # If not, this conditional setup avoids failure when token is absent.
-      - name: Configure AWS Credentials (with session token)        
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

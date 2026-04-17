@@ -151,7 +151,7 @@ Resources:
         Variables:
           ATHENA_TIMEOUT_SECONDS: "120"
           CLOUDWATCH_NAMESPACE: "AgriPriceML"
-          ATHENA_OUTPUT_S3: "s3://agri-price-dev-raw/athena-results/"
+          ATHENA_OUTPUT_S3: "s3://agri-price-dev-raw-project/athena-results/"
           ATHENA_WORKGROUP: "primary"
           ATHENA_DATABASE: "agri_mlops"
           ATHENA_POLL_SECONDS: "2"
@@ -169,7 +169,7 @@ Resources:
       Code: ../src/backend/ingest_weather
       Environment:
         Variables:
-          RAW_BUCKET: "agri-price-dev-raw"
+          RAW_BUCKET: "agri-price-dev-raw-project"
           ENV_NAME: "dev"
           WEATHER_API_TIMEOUT: "30"
           WEATHER_API_URL: "https://archive-api.open-meteo.com/v1/archive"
@@ -221,7 +221,7 @@ Resources:
           META_BASE: "inference/input/"
           CURATED_BASE: "predictions/curated/"
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
-          BUCKET: "agri-price-dev-raw"
+          BUCKET: "agri-price-dev-raw-project"
       Layers:
       - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python314:2"
 
@@ -241,7 +241,7 @@ Resources:
           SOURCE_TIMEZONE: "Asia/Bangkok"
           PRODUCT_IDS: "P13087, P13083, P13043, P13002, P14001"
           LOOKBACK_DAYS: "1"
-          RAW_BUCKET: "agri-price-dev-raw"
+          RAW_BUCKET: "agri-price-dev-raw-project"
           ENV_NAME: "dev"
           PRICE_API_TIMEOUT: "90"
           PROJECT_NAME: "agri-price"
@@ -260,7 +260,7 @@ Resources:
       Code: ../src/backend/agri-start-retraining
       Environment:
         Variables:
-          FEATURES_S3_URI: "s3://agri-price-dev-raw/processed/features/"
+          FEATURES_S3_URI: "s3://agri-price-dev-raw-project/processed/features/"
           TARGET_COLUMNS: "target_next_day_price_coriander,target_next_day_price_kale,target_next_day_price_lime,target_next_day_price_orange,target_next_day_price_red_chili"
           PIPELINE_NAME: "agri-price-train-evaluate-register"
 
@@ -277,11 +277,11 @@ Resources:
       Environment:
         Variables:
           SAGEMAKER_EXEC_ROLE_ARN: "arn:aws:iam::667938260982:role/LabRole"
-          OUTPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw/predictions/raw/run_date={run_date}/"
+          OUTPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw-project/predictions/raw/run_date={run_date}/"
           INSTANCE_COUNT: "1"
           INSTANCE_TYPE: "ml.m5.large"
           MODEL_PACKAGE_GROUP: "agri-price-multi-output"
-          INPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw/inference/input/run_date={run_date}/payload/"
+          INPUT_S3_URI_TEMPLATE: "s3://agri-price-dev-raw-project/inference/input/run_date={run_date}/payload/"
 
   # ==========================================
   # Step Functions Workflow
@@ -329,7 +329,7 @@ Resources:
   S3BucketAgripricedevraw:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: "agri-price-dev-raw"
+      BucketName: "agri-price-dev-raw-project"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -346,7 +346,7 @@ Resources:
         CorsRules:
         - MaxAge: 3000
           AllowedMethods: ["GET", "HEAD"]
-          AllowedOrigins: ["http://agri-price-dev-raw.s3-website-us-east-1.amazonaws.com"]
+          AllowedOrigins: ["http://agri-price-dev-raw-project.s3-website-us-east-1.amazonaws.com"]
           AllowedHeaders: ["*"]
 
   S3BucketPolicyAgripricedevraw:
@@ -360,12 +360,12 @@ Resources:
           Effect: "Allow"
           Principal: "*"
           Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw/site/*"
+          Resource: "arn:aws:s3:::agri-price-dev-raw-project/site/*"
         - Sid: "PublicReadLatestPredictions"
           Effect: "Allow"
           Principal: "*"
           Action: "s3:GetObject"
-          Resource: "arn:aws:s3:::agri-price-dev-raw/predictions/curated/latest/*"
+          Resource: "arn:aws:s3:::agri-price-dev-raw-project/predictions/curated/latest/*"
 
   AthenaWorkGroupPrimary:
     Type: "AWS::Athena::WorkGroup"
