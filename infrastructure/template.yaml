@@ -424,13 +424,13 @@ Resources:
   #     Action: "lambda:InvokeFunction"
   #     Principal: "events.amazonaws.com"
 
-  # LambdaPermissionFunctionagriapprovaldecision:
-  #   Type: "AWS::Lambda::Permission"
-  #   Properties:
-  #     FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
-  #     Action: "lambda:InvokeFunction"
-  #     Principal: "apigateway.amazonaws.com"
-  #     SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
+  LambdaPermissionFunctionagriapprovaldecision:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AgriApprovalHttpApi}/*/*/decision"
 
   # LambdaPermissionFunctionlambdaingestprices:
   #   Type: "AWS::Lambda::Permission"
