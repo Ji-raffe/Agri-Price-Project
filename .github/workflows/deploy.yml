@@ -10,6 +10,7 @@ env:
   AWS_REGION: "us-east-1"                 # AWS region in use
   STACK_NAME: "agri-price-pipeline-stack" # Name of the CloudFormation stack
   S3_BUCKET: "agri-price-dev-raw"         # S3 bucket for artifacts and static website
+  ARTIFACT_BUCKET: "agri-artifacts"
 
 jobs:
   deploy:
