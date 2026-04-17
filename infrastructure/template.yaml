@@ -16,7 +16,7 @@ Resources:
       Targets:
       - Id: "agri-curate-predictions-target"
         Arn: !GetAtt LambdaFunctionAgricuratepredictions.Arn
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagridailymonitorrule:
     Type: "AWS::Events::Rule"
@@ -28,7 +28,7 @@ Resources:
       Targets:
       - Id: "agri-metrics-publisher-target"
         Arn: !GetAtt LambdaFunctionAgrimetricspublisher.Arn
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagridailyweatheringest:
     Type: "AWS::Events::Rule"
@@ -42,7 +42,7 @@ Resources:
         Arn: !GetAtt LambdaFunctionLambdaingestweather.Arn
         RetryPolicy:
           MaximumRetryAttempts: 2
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagridailypricesingest:
     Type: "AWS::Events::Rule"
@@ -56,7 +56,7 @@ Resources:
         Arn: !GetAtt LambdaFunctionLambdaingestprices.Arn
         RetryPolicy:
           MaximumRetryAttempts: 2
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagridailyinferencerule:
     Type: "AWS::Events::Rule"
@@ -68,7 +68,7 @@ Resources:
       Targets:
       - Id: "agri-daily-inference-target"
         Arn: !GetAtt LambdaFunctionAgridailyinference.Arn
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagriretrainondriftrule:
     Type: "AWS::Events::Rule"
@@ -90,7 +90,7 @@ Resources:
       Targets:
       - Id: "agri-retrain-workflow-target"
         Arn: !GetAtt StepFunctionsStateMachineStateMachineagriretrainapprovalworkflow.Arn
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   EventsRuleRuleagridailygluejob:
     Type: "AWS::Events::Rule"
@@ -102,7 +102,7 @@ Resources:
       Targets:
       - Id: "agri-start-glue-transform-target"
         Arn: !GetAtt LambdaFunctionAgristartgluetransform.Arn
-        RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+        RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
 
   # ==========================================
   # Lambda Functions
@@ -113,7 +113,7 @@ Resources:
       FunctionName: "agri-store-task-token"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 3
       Code: ../src/backend/agri-store-task-token
@@ -128,13 +128,13 @@ Resources:
       FunctionName: "agri-send-approval-request"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 3
       Code: ../src/backend/send_approval_request
       Environment:
         Variables:
-          TOPIC_ARN: "arn:aws:sns:us-east-1:${AWS::AccountId}:agri-retrain-approval-topic"
+          TOPIC_ARN: !Ref SNSTopicAgriretrainapprovaltopic
           APPROVAL_BASE_URL: "https://9me333oa9j.execute-api.us-east-1.amazonaws.com/prod/decision"
           TABLE_NAME: "agri-retrain-approvals"
 
@@ -144,7 +144,7 @@ Resources:
       FunctionName: "agri-metrics-publisher"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-metrics-publisher
@@ -164,7 +164,7 @@ Resources:
       FunctionName: "lambda_ingest_weather"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/ingest_weather
@@ -184,7 +184,7 @@ Resources:
       FunctionName: "agri-start-glue-transform"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-start-glue-transform
@@ -198,7 +198,7 @@ Resources:
       FunctionName: "agri-approval-decision"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 3
       Code: ../src/backend/agri-approval-decision
@@ -212,7 +212,7 @@ Resources:
       FunctionName: "agri-curate-predictions"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-curate-predictions
@@ -232,7 +232,7 @@ Resources:
       FunctionName: "lambda_ingest_prices"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 300
       Code: ../src/backend/ingest_prices
@@ -255,7 +255,7 @@ Resources:
       FunctionName: "agri-start-retraining"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-start-retraining
@@ -271,7 +271,7 @@ Resources:
       FunctionName: "agri-daily-inference"
       Handler: "lambda_function.lambda_handler"
       Runtime: "python3.14"
-      Role: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole" 
       MemorySize: 128
       Timeout: 63
       Code: ../src/backend/agri-daily-inference
@@ -291,7 +291,7 @@ Resources:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
       StateMachineName: "agri-retrain-approval-workflow"
-      RoleArn: "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
       StateMachineType: "STANDARD"
       DefinitionString: "{\"Comment\":\"Human-in-the-loop approval before retraining\",\"StartAt\":\"AddExecutionArn\",\"States\":{\"AddExecutionArn\":{\"Type\":\"Pass\",\"Parameters\":{\"execution_arn.$\":\"$$.Execution.Id\"},\"ResultPath\":\"$.meta\",\"Next\":\"SendApprovalRequest\"},\"SendApprovalRequest\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-send-approval-request\",\"Payload\":{\"execution_arn.$\":\"$.meta.execution_arn\"}},\"ResultPath\":\"$.approval\",\"Next\":\"StoreTaskToken\"},\"StoreTaskToken\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke.waitForTaskToken\",\"Parameters\":{\"FunctionName\":\"agri-store-task-token\",\"Payload\":{\"token.$\":\"$.approval.Payload.token\",\"task_token.$\":\"$$.Task.Token\"}},\"TimeoutSeconds\":86400,\"ResultPath\":\"$.decision\",\"Next\":\"ApprovedChoice\"},\"ApprovedChoice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.decision.approved\",\"BooleanEquals\":true,\"Next\":\"StartRetraining\"}],\"Default\":\"Rejected\"},\"StartRetraining\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-start-retraining\",\"Payload\":{}},\"End\":true},\"Rejected\":{\"Type\":\"Fail\",\"Error\":\"ApprovalRejected\",\"Cause\":\"Retraining rejected by admin\"}}}"
 
@@ -383,20 +383,20 @@ Resources:
   LambdaPermissionFunctionlambdaingestweather:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:${AWS::AccountId}:function:lambda_ingest_weather"
+      FunctionName: !GetAtt LambdaFunctionLambdaingestweather.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
 
   LambdaPermissionFunctionagriapprovaldecision:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:${AWS::AccountId}:function:agri-approval-decision"
+      FunctionName: !GetAtt LambdaFunctionAgriapprovaldecision.Arn
       Action: "lambda:InvokeFunction"
       Principal: "apigateway.amazonaws.com"
 
   LambdaPermissionFunctionlambdaingestprices:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: "arn:aws:lambda:us-east-1:${AWS::AccountId}:function:lambda_ingest_prices"
+      FunctionName: !GetAtt LambdaFunctionLambdaingestprices.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
