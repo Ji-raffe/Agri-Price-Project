@@ -1,6 +1,15 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Agri-Price Prediction ML Pipeline"
 
+Parameters:
+  ArtifactBucketName:
+    Type: String
+    Description: S3 bucket that stores Lambda deployment artifacts
+  ArtifactPrefix:
+    Type: String
+    Default: lambda-artifacts
+    Description: S3 key prefix for Lambda zip files
+
 Resources:
   # ==========================================
   # EventBridge Rules (Schedules)
@@ -115,7 +124,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/agri-store-task-token
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-store-task-token.zip"
       Environment:
         Variables:
           TABLE_NAME: "agri-retrain-approvals"
@@ -129,7 +140,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/send_approval_request
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/send_approval_request.zip"
       Environment:
         Variables:
           TOPIC_ARN: "arn:aws:sns:us-east-1:667938260982:agri-retrain-approval-topic"
@@ -145,7 +158,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-metrics-publisher
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-metrics-publisher.zip"
       Environment:
         Variables:
           ATHENA_TIMEOUT_SECONDS: "120"
@@ -165,7 +180,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/ingest_weather
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/ingest_weather.zip"
       Environment:
         Variables:
           RAW_BUCKET: "agri-price-dev-raw"
@@ -185,7 +202,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-start-glue-transform
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-start-glue-transform.zip"
       Environment:
         Variables:
           GLUE_JOB_NAME: "agri-price-dev-phase-b"
@@ -199,7 +218,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 3
-      Code: ../src/backend/agri-approval-decision
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-approval-decision.zip"
       Environment:
         Variables:
           TABLE_NAME: "agri-retrain-approvals"
@@ -213,7 +234,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-curate-predictions
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-curate-predictions.zip"
       Environment:
         Variables:
           RAW_BASE: "predictions/raw/"
@@ -233,7 +256,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 300
-      Code: ../src/backend/ingest_prices
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/ingest_prices.zip"
       Environment:
         Variables:
           PRICE_API_URL: "https://dataapi.moc.go.th/gis-product-prices"
@@ -256,7 +281,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-start-retraining
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-start-retraining.zip"
       Environment:
         Variables:
           FEATURES_S3_URI: "s3://agri-price-dev-raw/processed/features/"
@@ -272,7 +299,9 @@ Resources:
       Role: "arn:aws:iam::667938260982:role/LabRole"
       MemorySize: 128
       Timeout: 63
-      Code: ../src/backend/agri-daily-inference
+      Code:
+        S3Bucket: !Ref ArtifactBucketName
+        S3Key: !Sub "${ArtifactPrefix}/agri-daily-inference.zip"
       Environment:
         Variables:
           SAGEMAKER_EXEC_ROLE_ARN: "arn:aws:iam::667938260982:role/LabRole"

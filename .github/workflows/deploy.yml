@@ -11,6 +11,7 @@ env:
   STACK_NAME: "agri-price-pipeline-stack"
   S3_BUCKET: "agri-price-dev-raw"
   ARTIFACT_BUCKET: "agri-artifacts"
+  ARTIFACT_PREFIX: "lambda-artifacts"
 
 jobs:
   deploy:
@@ -20,36 +21,58 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # If you always use temporary creds, keep aws-session-token.
-      # If not, this conditional setup avoids failure when token is absent.
-      - name: Configure AWS Credentials (with session token)        
+      - name: Configure AWS Credentials (with session token)
+        if: ${{ secrets.AWS_SESSION_TOKEN != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ env.AWS_REGION }}      
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS Credentials (without session token)
+        if: ${{ secrets.AWS_SESSION_TOKEN == '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Validate CloudFormation Template
         working-directory: ./infrastructure
         run: |
           aws cloudformation validate-template --template-body file://template.yaml
 
-      - name: Package CloudFormation Template
-        working-directory: ./infrastructure
+      - name: Zip Lambda functions
         run: |
-          aws cloudformation package \
-            --template-file template.yaml \
-            --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
-            --output-template-file packaged-template.yaml
+          set -euo pipefail
+          mkdir -p dist
+
+          zip -r dist/agri-store-task-token.zip src/backend/agri-store-task-token
+          zip -r dist/send_approval_request.zip src/backend/send_approval_request
+          zip -r dist/agri-metrics-publisher.zip src/backend/agri-metrics-publisher
+          zip -r dist/ingest_weather.zip src/backend/ingest_weather
+          zip -r dist/agri-start-glue-transform.zip src/backend/agri-start-glue-transform
+          zip -r dist/agri-approval-decision.zip src/backend/agri-approval-decision
+          zip -r dist/agri-curate-predictions.zip src/backend/agri-curate-predictions
+          zip -r dist/ingest_prices.zip src/backend/ingest_prices
+          zip -r dist/agri-start-retraining.zip src/backend/agri-start-retraining
+          zip -r dist/agri-daily-inference.zip src/backend/agri-daily-inference
+
+      - name: Upload Lambda artifacts to S3
+        run: |
+          aws s3 cp dist/ s3://${{ env.ARTIFACT_BUCKET }}/${{ env.ARTIFACT_PREFIX }}/ --recursive
 
       - name: Deploy CloudFormation Stack
         working-directory: ./infrastructure
         run: |
           aws cloudformation deploy \
-            --template-file packaged-template.yaml \
+            --template-file template.yaml \
             --stack-name ${{ env.STACK_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides \
+              ArtifactBucketName=${{ env.ARTIFACT_BUCKET }} \
+              ArtifactPrefix=${{ env.ARTIFACT_PREFIX }} \
             --no-fail-on-empty-changeset
 
       - name: Deploy Frontend to S3 (Static Website)
@@ -57,3 +80,12 @@ jobs:
           aws s3 sync ./src/frontend s3://${{ env.S3_BUCKET }}/site/ \
             --delete \
             --exact-timestamps
+
+      - name: Show recent stack events on failure
+        if: failure()
+        run: |
+          aws cloudformation describe-stack-events \
+            --stack-name ${{ env.STACK_NAME }} \
+            --max-items 30 \
+            --query 'StackEvents[].[Timestamp,LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]' \
+            --output table
