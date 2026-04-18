@@ -295,6 +295,31 @@ Resources:
       StateMachineType: "STANDARD"
       DefinitionString: "{\"Comment\":\"Human-in-the-loop approval before retraining\",\"StartAt\":\"AddExecutionArn\",\"States\":{\"AddExecutionArn\":{\"Type\":\"Pass\",\"Parameters\":{\"execution_arn.$\":\"$$.Execution.Id\"},\"ResultPath\":\"$.meta\",\"Next\":\"SendApprovalRequest\"},\"SendApprovalRequest\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-send-approval-request\",\"Payload\":{\"execution_arn.$\":\"$.meta.execution_arn\"}},\"ResultPath\":\"$.approval\",\"Next\":\"StoreTaskToken\"},\"StoreTaskToken\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke.waitForTaskToken\",\"Parameters\":{\"FunctionName\":\"agri-store-task-token\",\"Payload\":{\"token.$\":\"$.approval.Payload.token\",\"task_token.$\":\"$$.Task.Token\"}},\"TimeoutSeconds\":86400,\"ResultPath\":\"$.decision\",\"Next\":\"ApprovedChoice\"},\"ApprovedChoice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.decision.approved\",\"BooleanEquals\":true,\"Next\":\"StartRetraining\"}],\"Default\":\"Rejected\"},\"StartRetraining\":{\"Type\":\"Task\",\"Resource\":\"arn:aws:states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"agri-start-retraining\",\"Payload\":{}},\"End\":true},\"Rejected\":{\"Type\":\"Fail\",\"Error\":\"ApprovalRejected\",\"Cause\":\"Retraining rejected by admin\"}}}"
 
+
+  # ==========================================
+  # AWS Glue Job
+  # ==========================================
+   GlueJobPhaseB:
+    Type: "AWS::Glue::Job"
+    Properties:
+      Name: "agri-price-dev-phase-b"
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LabRole"
+      Description: "Data transformation job for Agri-Price"
+      GlueVersion: "3.0"
+      MaxCapacity: 1     
+      Command:
+        Name: "pythonshell" 
+        ScriptLocation: !Sub "s3://${S3BucketAgripricedevraw}/scripts/agri-price-dev-phase-b.py"
+        PythonVersion: "3.9"
+      DefaultArguments:
+        "--job-language": "python"
+        "--TempDir": !Sub "s3://${S3BucketAgripricedevraw}/temp/glue/"        
+        "--raw-bucket": !Ref S3BucketAgripricedevraw
+        "--price-prefix": "raw/prices/"
+        "--weather-prefix": "raw/weather/"
+        "--processed-bucket": !Ref S3BucketAgripricedevraw
+        "--processed-prefix": "processed/"
+
   # ==========================================
   # Notifications & Alarms (SNS / CloudWatch)
   # ==========================================
