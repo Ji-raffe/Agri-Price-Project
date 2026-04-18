@@ -72,7 +72,7 @@ jobs:
       - name: Run SageMaker Setup Script
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install -r ./src/sagemaker_code/requirements.txt
           python ./src/sagemaker_code/training_pipeline.py \
             --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole" \
             --bucket ${{ env.S3_BUCKET }} \
