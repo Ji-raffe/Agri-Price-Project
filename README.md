@@ -3,7 +3,7 @@
 Before running the pipeline or deploying this project, you must complete the following preliminary steps in your AWS environment:
 
 ### 1. Create an S3 Bucket
-You need to manually create an Amazon S3 bucket to store the project's data, models, and outputs.
+You need to manually create an Amazon S3 bucket to store the project's data.
 * **Bucket Name:** `agri-artifacts`
 *(Note: Please ensure this bucket is created before triggering the GitHub Actions workflow).*
 
