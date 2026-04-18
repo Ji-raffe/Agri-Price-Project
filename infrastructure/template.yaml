@@ -299,7 +299,7 @@ Resources:
   # ==========================================
   # AWS Glue Job
   # ==========================================
-   GlueJobPhaseB:
+  GlueJobPhaseB:
     Type: "AWS::Glue::Job"
     Properties:
       Name: "agri-price-dev-phase-b"
