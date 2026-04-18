@@ -328,7 +328,7 @@ Resources:
     Properties:
       TopicName: "agri-retrain-approval-topic"
       Subscription:
-      - Endpoint: "st125843@ait.asia"
+      - Endpoint: "<your-email>"
         Protocol: "email"
 
   CloudWatchAlarmAgrioverallmapealarm:
