@@ -64,7 +64,7 @@ jobs:
 
       - name: Upload Glue Script to S3
         run: |
-          aws s3 cp ./src/glue/agri-price-dev-phase-b.py s3://${{ secrets.S3_BUCKET }}/scripts/agri-price-dev-phase-b.py
+          aws s3 cp ./src/glue/agri-price-dev-phase-b.py s3://agri-price-dev-raw-project/scripts/agri-price-dev-phase-b.py
 
      
       - name: Run SageMaker Setup Script
