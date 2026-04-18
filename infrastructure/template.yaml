@@ -328,7 +328,7 @@ Resources:
     Properties:
       TopicName: "agri-retrain-approval-topic"
       Subscription:
-      - Endpoint: " " #email
+      - Endpoint: "your-email@example.com"
         Protocol: "email"
 
   CloudWatchAlarmAgrioverallmapealarm:
